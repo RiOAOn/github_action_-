@@ -1,0 +1,43 @@
+# .github/workflows/client.yml
+name: client
+
+# 언제 job을 작동시킬지
+on:
+  push:
+    branches:
+      - myRepo
+
+# 어떤 job을 할지
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout source code.
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./my-agora-states-client
+      - name: Build
+        run: npm build
+        working-directory: ./my-agora-states-client
+      - name: SHOW AWS CLI VERSION
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_EC2_METADATA_DISABLED: true
+        run: |
+          aws --version
+      - name: Sync Bucket
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_EC2_METADATA_DISABLED: true
+  
+        # aws s3 sync {local file path} s3://{bucket name} //버킷 동기화 업로드
+        run: |
+          aws s3 sync \
+            --region ap-northeast-2 \
+            build s3://fe-15-rioaon-s3 \
+            --delete
+        working-directory: ./my-agora-states-client
+        
