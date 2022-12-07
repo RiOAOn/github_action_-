@@ -5,7 +5,7 @@ name: client
 on:
   push:
     branches:
-      - myRepo
+      - reference
 
 # 어떤 job을 할지
 jobs:
